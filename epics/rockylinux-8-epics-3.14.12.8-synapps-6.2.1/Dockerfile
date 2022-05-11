@@ -1,55 +1,35 @@
-FROM rockylinux
+FROM stephanecea/epics:rockylinux-8-epics-3.14.12.8
 
-######################
-# install dependencies
+######################################################################################
+# get [MSI R1-7](https://epics.anl.gov/extensions/msi/index.php) as an EPICS extension
+# (dependency for synApps' iocStats module with EPICS base 3.14)
 #
-RUN dnf update -y --refresh
-RUN dnf install -y dnf-plugins-core epel-release
-RUN dnf config-manager --set-enabled powertools
-RUN dnf group install -y "Development Tools"
-RUN dnf install -y wget git perl
-RUN dnf install -y readline-devel # EPICS base dependency
-RUN dnf install -y re2c # SEQ dependency
-RUN dnf install -y rpcsvc-proto-devel rpcgen libtirpc-devel # Asyn dependencies
-RUN dnf install -y xorg-x11-proto-devel libX11-devel libXext-devel # Area Detector dependencies
-RUN dnf install -y libusb-devel
-
-#####################################
-# prepare epics installation location
-#
-RUN groupadd epics
-RUN mkdir /opt/epics
-RUN chown root:epics /opt/epics && chmod 775 /opt/epics
-RUN chmod g+s /opt/epics
-
-############################
-# install EPICS base R3.15.9
-#
+# install EPICS extensions Top (04/09/2012)
 WORKDIR /opt/epics
-RUN git clone --recursive -b 3.15 https://git.launchpad.net/epics-base
-WORKDIR /opt/epics/epics-base
-RUN git checkout R3.15.9
-RUN git submodule update --recursive
-WORKDIR /opt/epics
-RUN mv epics-base base-3.15.9-gcc
-RUN ln -s base-3.15.9-gcc base
-WORKDIR /opt/epics/base
+RUN wget 'https://epics.anl.gov/download/extensions/extensionsTop_20120904.tar.gz'
+RUN tar -zxvf extensionsTop_20120904.tar.gz
+RUN rm -rf extensionsTop_20120904.tar.gz
+#
+# install MSI R1-7
+WORKDIR /opt/epics/extensions/src
+RUN wget 'https://epics.anl.gov/download/extensions/msi1-7.tar.gz'
+RUN tar -zxvf msi1-7.tar.gz
+RUN rm -rf msi1-7.tar.gz
+RUN sed -i 's/^EXTENSION_MSI = msi/EXTENSION_MSI = msi1-7/g' Makefile
+WORKDIR /opt/epics/extensions
 RUN make clean && make
-
-#################################
-# set EPICS environment variables
 #
-RUN echo '# EPICS base\n\
-export EPICS_BASE=/opt/epics/base\n\
-export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)\n\
-export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}\n\
-export LD_LIBRARY_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}\n\
-\n\
-# EPICS support\n\
-export EPICS_SUPPORT=/opt/epics/synApps/support\n\
-export PATH=${EPICS_SUPPORT}/bin/${EPICS_HOST_ARCH}:${PATH}\n\
-export LD_LIBRARY_PATH=${EPICS_SUPPORT}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}' >> /etc/bashrc
-RUN source /etc/bashrc
+# set EPICS extensions environment variables
+RUN echo '#' >> /etc/bashrc
+RUN echo '# EPICS extensions' >> /etc/bashrc
+RUN echo 'export EPICS_EXTENSIONS=/opt/epics/extensions' >> /etc/bashrc
+RUN echo 'export PATH=${EPICS_EXTENSIONS}/bin/${EPICS_HOST_ARCH}:${PATH}' >> /etc/bashrc
+#RUN echo 'export LD_LIBRARY_PATH=${EPICS_EXTENSIONS}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}' >> /etc/bashrc
+
+ENV EPICS_HOST_ARCH="linux-x86_64"
+ENV EPICS_EXTENSIONS="/opt/epics/extensions"
+ENV PATH="PATH=${EPICS_EXTENSIONS}/bin/${EPICS_HOST_ARCH}:${PATH}"
+#ENV LD_LIBRARY_PATH="LD_LIBRARY_PATH=${EPICS_EXTENSIONS}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}"
 
 ############################################################################
 # get [synApps R6-2-1](https://github.com/EPICS-synApps/support/tree/R6-2-1)
@@ -120,3 +100,4 @@ WORKDIR /opt/epics/synApps/support
 RUN make release
 RUN make clean && make rebuild
 
+WORKDIR /opt/epics

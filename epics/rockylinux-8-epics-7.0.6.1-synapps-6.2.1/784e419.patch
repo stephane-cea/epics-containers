@@ -1,0 +1,12 @@
+diff --git a/motorApp/MotorSrc/motordrvCom.h b/motorApp/MotorSrc/motordrvCom.h
+index 98e736af..4f701ffa 100644
+--- a/motorApp/MotorSrc/motordrvCom.h
++++ b/motorApp/MotorSrc/motordrvCom.h
+@@ -45,6 +45,7 @@ USAGE...	This file contains definitions and structures that\n\
+ #ifndef	INCmotordrvComh
+ #define	INCmotordrvComh 1
+ 
++#include <shareLib.h>
+ #include <callback.h>
+ #include <epicsTypes.h>
+ #include <epicsEvent.h>

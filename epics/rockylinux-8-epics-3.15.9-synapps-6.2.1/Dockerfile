@@ -1,55 +1,4 @@
-FROM rockylinux
-
-######################
-# install dependencies
-#
-RUN dnf update -y --refresh
-RUN dnf install -y dnf-plugins-core epel-release
-RUN dnf config-manager --set-enabled powertools
-RUN dnf group install -y "Development Tools"
-RUN dnf install -y wget git perl
-RUN dnf install -y readline-devel # EPICS base dependency
-RUN dnf install -y re2c # SEQ dependency
-RUN dnf install -y rpcsvc-proto-devel rpcgen libtirpc-devel # Asyn dependencies
-RUN dnf install -y xorg-x11-proto-devel libX11-devel libXext-devel # Area Detector dependencies
-RUN dnf install -y libusb-devel
-
-#####################################
-# prepare epics installation location
-#
-RUN groupadd epics
-RUN mkdir /opt/epics
-RUN chown root:epics /opt/epics && chmod 775 /opt/epics
-RUN chmod g+s /opt/epics
-
-#############################
-# install EPICS base R7.0.6.1
-#
-WORKDIR /opt/epics
-RUN git clone --recursive -b 7.0 https://git.launchpad.net/epics-base
-WORKDIR /opt/epics/epics-base
-RUN git checkout R7.0.6.1
-RUN git submodule update --recursive
-WORKDIR /opt/epics
-RUN mv epics-base base-7.0.6.1-gcc
-RUN ln -s base-7.0.6.1-gcc base
-WORKDIR /opt/epics/base
-RUN make clean && make
-
-#################################
-# set EPICS environment variables
-#
-RUN echo '# EPICS base\n\
-export EPICS_BASE=/opt/epics/base\n\
-export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)\n\
-export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}\n\
-export LD_LIBRARY_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}\n\
-\n\
-# EPICS support\n\
-export EPICS_SUPPORT=/opt/epics/synApps/support\n\
-export PATH=${EPICS_SUPPORT}/bin/${EPICS_HOST_ARCH}:${PATH}\n\
-export LD_LIBRARY_PATH=${EPICS_SUPPORT}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}' >> /etc/bashrc
-RUN source /etc/bashrc
+FROM stephanecea/epics:rockylinux-8-epics-3.15.9
 
 ############################################################################
 # get [synApps R6-2-1](https://github.com/EPICS-synApps/support/tree/R6-2-1)
@@ -84,6 +33,13 @@ RUN ln -s synApps-6.2.1 synApps
 WORKDIR /opt/epics/synApps/support/asyn-R4-42
 RUN sed -i 's/^# TIRPC=.*/TIRPC=YES/g' configure/CONFIG_SITE
 
+################################################
+# set WITH_PVA=NO in synApps areaDetector module
+#
+WORKDIR /opt/epics/synApps/support/areaDetector-R3-11
+RUN sed -i 's/^WITH_PVA  = YES/WITH_PVA  = NO/g' configure/CONFIG_SITE.local
+RUN sed -i 's/^WITH_QSRV = YES/WITH_QSRV = NO/g' configure/CONFIG_SITE.local
+
 ########################################################################
 # fix [motor R7-2-2](https://github.com/epics-modules/motor/tree/R7-2-2)
 # see https://epics.anl.gov/tech-talk/2021/msg01911.php
@@ -113,3 +69,4 @@ WORKDIR /opt/epics/synApps/support
 RUN make release
 RUN make clean && make rebuild
 
+WORKDIR /opt/epics
