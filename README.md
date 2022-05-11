@@ -13,7 +13,7 @@ All containers can be found here: <https://hub.docker.com/repository/docker/step
 ## How to use
 
 **⚠️ Prerequisite(s) ⚠️**:
-- [docker](https://docs.docker.com/get-started/overview/)
+    - [docker](https://docs.docker.com/get-started/overview/)
 
 * Explore and use an EPICS container in an interactive bash shell:
     ```console
