@@ -127,8 +127,46 @@ $ docker run --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment
     $ docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:centos-7-epics-7.0.6.1 epics/centos-7-epics-7.0.6.1
     ```
 
-- Useful references:
-    - <https://www.reddit.com/r/docker/comments/c75uhq/how_to_run_arm64_containers_from_amd64_hosts_and/>
-    - <https://matchboxdorry.gitbooks.io/matchboxblog/content/blogs/build_and_run_arm_images.html>
-    - <https://www.stereolabs.com/docs/docker/building-arm-container-on-x86/>
-    - <https://docs.docker.com/desktop/multi-arch/>
+- If you want to decrease the size of the images you build, you can use the new
+  [`squash`](https://stackoverflow.com/questions/41764336/how-does-the-new-docker-squash-work)
+  docker option:
+    - In order to do so, you have to activate the experimental features of docker, by creating the
+      file `/etc/docker/daemon.json` with the following content:
+        ```console
+        {"experimental":true}
+        ```
+        Then restart docker and check that experimental features are enabled:
+        ```console
+        $ sudo systemctl restart docker
+        $ docker version | grep -i experimental
+        ```
+    - Now you can build the image you want, e.g. `epics:centos-7-epics-7.0.6.1` for both
+      `linux/amd64` and `linux/arm64`, with the `--squash` option:
+        ```console
+        $ docker buildx build --squash --platform=linux/amd64,linux/arm64 -t stephanecea/epics:centos-7-epics-7.0.6.1 epics/centos-7-epics-7.0.6.1
+        ```
+
+### Build troubleshooting
+
+#### `docker: 'buildx' is not a docker command.` error
+
+If you get following error:
+```console
+docker: 'buildx' is not a docker command.
+See 'docker --help'
+```
+
+Even after following those instructions:
+<https://medium.com/@artur.klauser/building-multi-architecture-docker-images-with-buildx-27d80f7e2408>
+
+Then you can install `buildx` manually like described here:
+<https://github.com/docker/buildx#manual-download>
+
+### Useful build references
+
+- <https://www.reddit.com/r/docker/comments/c75uhq/how_to_run_arm64_containers_from_amd64_hosts_and/>
+- <https://matchboxdorry.gitbooks.io/matchboxblog/content/blogs/build_and_run_arm_images.html>
+- <https://www.stereolabs.com/docs/docker/building-arm-container-on-x86/>
+- <https://docs.docker.com/desktop/multi-arch/>
+- <https://medium.com/@artur.klauser/building-multi-architecture-docker-images-with-buildx-27d80f7e2408>
+
