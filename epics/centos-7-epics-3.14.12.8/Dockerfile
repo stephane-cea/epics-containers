@@ -26,9 +26,8 @@ RUN cd /opt/epics \
  && tar -zxvf baseR3.14.12.8.tar.gz \
  && rm -f baseR3.14.12.8.tar.gz \
  && ln -s base-3.14.12.8 base \
- && cd base \
- && make \
- && make clean
+ && sed -i "36i \ \ \ \ \ \ \ \ return 'linux-aarch64'  if m/^aarch64-linux/;" /opt/epics/base/src/tools/EpicsHostArch.pl `# allow linux-aarch64 (for arm64 builds)`
+
 
 ######################################
 # set EPICS base environment variables
@@ -39,6 +38,14 @@ RUN echo '' >> /etc/bashrc \
  && echo 'export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)' >> /etc/bashrc \
  && echo 'export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}' >> /etc/bashrc \
  && echo 'export LD_LIBRARY_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}' >> /etc/bashrc
+
+##################
+# build EPICS base
+#
+RUN source /etc/bashrc \
+ && cd /opt/epics/base \
+ && make \
+ && make clean
 
 ##########
 # clean up
