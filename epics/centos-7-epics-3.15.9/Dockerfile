@@ -28,7 +28,6 @@ RUN cd /opt/epics \
  && ln -s base-3.15.9 base \
  && sed -i "36i \ \ \ \ \ \ \ \ return 'linux-aarch64'  if m/^aarch64-linux/;" /opt/epics/base/src/tools/EpicsHostArch.pl `# allow linux-aarch64 (for arm64 builds)`
 
-
 ######################################
 # set EPICS base environment variables
 #

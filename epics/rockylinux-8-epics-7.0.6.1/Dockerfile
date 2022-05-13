@@ -25,10 +25,7 @@ RUN cd /opt/epics \
  && wget https://epics-controls.org/download/base/base-7.0.6.1.tar.gz \
  && tar -zxvf base-7.0.6.1.tar.gz \
  && rm -f base-7.0.6.1.tar.gz \
- && ln -s base-7.0.6.1 base \
- && cd base \
- && make \
- && make clean
+ && ln -s base-7.0.6.1 base
 
 ######################################
 # set EPICS base environment variables
@@ -39,6 +36,14 @@ RUN echo '' >> /etc/bashrc \
  && echo 'export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)' >> /etc/bashrc \
  && echo 'export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}' >> /etc/bashrc \
  && echo 'export LD_LIBRARY_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH}' >> /etc/bashrc
+
+##################
+# build EPICS base
+#
+RUN source /etc/bashrc \
+ && cd /opt/epics/base \
+ && make \
+ && make clean
 
 ##########
 # clean up
