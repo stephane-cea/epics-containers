@@ -1,16 +1,24 @@
 #!/bin/sh
 
+set -euxo pipefail # see https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+
 # docker login
 
-# EPICS base containers
-docker build -t stephanecea/epics:rockylinux-8-epics-3.14.12.8 ./epics/rockylinux-8-epics-3.14.12.8 && docker push stephanecea/epics:rockylinux-8-epics-3.14.12.8 || exit 1
-docker build -t stephanecea/epics:rockylinux-8-epics-3.15.9 ./epics/rockylinux-8-epics-3.15.9 && docker push stephanecea/epics:rockylinux-8-epics-3.15.9 || exit 2
-docker build -t stephanecea/epics:rockylinux-8-epics-7.0.6.1 ./epics/rockylinux-8-epics-7.0.6.1 && docker push stephanecea/epics:rockylinux-8-epics-7.0.6.1 || exit 3
+# rockylinux EPICS base containers
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-3.14.12.8 --push ./epics/rockylinux-8-epics-3.14.12.8
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-3.15.9 --push ./epics/rockylinux-8-epics-3.15.9
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-7.0.6.1 --push ./epics/rockylinux-8-epics-7.0.6.1
+
+# centos EPICS base containers
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:centos-7-epics-3.14.12.8 --push ./epics/centos-7-epics-3.14.12.8
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:centos-7-epics-3.15.9 --push ./epics/centos-7-epics-3.15.9
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:centos-7-epics-7.0.6.1 --push ./epics/centos-7-epics-7.0.6.1
 
 # EPICS synapps containers
-#docker build -t stephanecea/epics:rockylinux-8-epics-3.14.12.8-synapps-6.2.1 ./epics/rockylinux-8-epics-3.14.12.8-synapps-6.2.1 && docker push stephanecea/epics:rockylinux-8-epics-3.14.12.8-synapps-6.2.1 || exit 4 # TODO : FIXME
-docker build -t stephanecea/epics:rockylinux-8-epics-3.15.9-synapps-6.2.1 ./epics/rockylinux-8-epics-3.15.9-synapps-6.2.1 && docker push stephanecea/epics:rockylinux-8-epics-3.15.9-synapps-6.2.1 || exit 5
-docker build -t stephanecea/epics:rockylinux-8-epics-7.0.6.1-synapps-6.2.1 ./epics/rockylinux-8-epics-7.0.6.1-synapps-6.2.1 && docker push stephanecea/epics:rockylinux-8-epics-7.0.6.1-synapps-6.2.1 || exit 6
+#docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-3.14.12.8-synapps-6.2.1 --push ./epics/rockylinux-8-epics-3.14.12.8-synapps-6.2.1 # TODO : FIXME
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-3.15.9-synapps-6.2.1 --push ./epics/rockylinux-8-epics-3.15.9-synapps-6.2.1
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-7.0.6.1-synapps-6.2.1 --push ./epics/rockylinux-8-epics-7.0.6.1-synapps-6.2.1
 
 # EPICS examples containers
-docker build -t stephanecea/epics:rockylinux-8-epics-7.0.6.1-example-top ./epics/rockylinux-8-epics-7.0.6.1-example-top && docker push stephanecea/epics:rockylinux-8-epics-7.0.6.1-example-top || exit 7
+docker buildx build --platform=linux/amd64,linux/arm64 -t stephanecea/epics:rockylinux-8-epics-7.0.6.1-example-top --push ./epics/rockylinux-8-epics-7.0.6.1-example-top
+

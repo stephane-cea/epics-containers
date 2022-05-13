@@ -1,5 +1,10 @@
 FROM stephanecea/epics:rockylinux-8-epics-3.14.12.8
 
+RUN yum install -y re2c # SEQ dependency
+#RUN yum install -y rpcsvc-proto-devel rpcgen libtirpc-devel # Asyn dependencies
+RUN yum install -y xorg-x11-proto-devel libX11-devel libXext-devel libusb-devel # Area Detector dependencies
+
+
 ######################################################################################
 # get [MSI R1-7](https://epics.anl.gov/extensions/msi/index.php) as an EPICS extension
 # (dependency for synApps' iocStats module with EPICS base 3.14)

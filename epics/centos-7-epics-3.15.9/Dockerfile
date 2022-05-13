@@ -1,14 +1,14 @@
-FROM rockylinux:8
+FROM centos:centos7
 
 LABEL maintainer="Stéphane Tzvetkov" \
-      name="EPICS base 3.14.12.8 on RockyLinux 8"
+      name="EPICS base 3.15.9 on CentOS 7"
 
 ######################
 # install dependencies
 #
-RUN dnf install -y wget `# needed to retrieve the EPICS base` \
- && dnf install -y make perl gcc gcc-c++ readline-devel `# EPICS base dependencies` \
- && dnf clean all && rm -rf /var/cache/dnf
+RUN yum install -y wget `# needed to retrieve the EPICS base` \
+ && yum install -y make perl gcc gcc-c++ `# EPICS base dependencies` \
+ && yum clean all && rm -rf /var/cache/dnf
 
 #####################################
 # prepare epics installation location
@@ -18,14 +18,14 @@ RUN groupadd epics \
  && chown root:epics /opt/epics && chmod 775 /opt/epics \
  && chmod g+s /opt/epics
 
-###############################
-# install EPICS base R3.14.12.8
+############################
+# install EPICS base R3.15.9
 #
 RUN cd /opt/epics \
- && wget https://epics-controls.org/download/base/baseR3.14.12.8.tar.gz \
- && tar -zxvf baseR3.14.12.8.tar.gz \
- && rm -f baseR3.14.12.8.tar.gz \
- && ln -s base-3.14.12.8 base \
+ && wget --no-check-certificate https://epics-controls.org/download/base/base-3.15.9.tar.gz \
+ && tar -zxvf base-3.15.9.tar.gz \
+ && rm -f base-3.15.9.tar.gz \
+ && ln -s base-3.15.9 base \
  && cd base \
  && make \
  && make clean

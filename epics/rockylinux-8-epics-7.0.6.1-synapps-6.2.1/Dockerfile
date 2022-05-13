@@ -1,5 +1,9 @@
 FROM stephanecea/epics:rockylinux-8-epics-7.0.6.1
 
+RUN yum install -y re2c # SEQ dependency
+RUN yum install -y rpcsvc-proto-devel rpcgen libtirpc-devel # Asyn dependencies
+RUN yum install -y xorg-x11-proto-devel libX11-devel libXext-devel libusb-devel # Area Detector dependencies
+
 ############################################################################
 # get [synApps R6-2-1](https://github.com/EPICS-synApps/support/tree/R6-2-1)
 #
