@@ -102,11 +102,11 @@ $ docker run --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment
     ```
 
 - Run an arm64 container on a amd64 host:
-    - **⚠️ Prerequisite(s) ⚠️**: [Multi-Arch prerequisites](#multi-arch-prerequisites)
-    - E.g. pull the `epics:centos-7-epics-7.0.6.1-arm-test` arm64 container and run it:
+    - **⚠️ Prerequisite(s) ⚠️**: [multi-arch prerequisites](#multi-arch-prerequisites)
+    - E.g. pull the `epics:centos-7-epics-7.0.6.1` arm64 container and run it:
         ```console
-        $ docker pull --platform=linux/arm64 stephanecea/epics:centos-7-epics-7.0.6.1-arm-test
-        $ docker run -it --platform=linux/arm64 stephanecea/epics:centos-7-epics-7.0.6.1-arm-test bash -c "uname -m"
+        $ docker pull --platform=linux/arm64 stephanecea/epics:centos-7-epics-7.0.6.1
+        $ docker run -it --platform=linux/arm64 stephanecea/epics:centos-7-epics-7.0.6.1 bash
         ```
 
 ## How to build
